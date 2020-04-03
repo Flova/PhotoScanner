@@ -5,32 +5,29 @@ import imutils
 import numpy as np
 
 def process_image(image):
-    ratio = image.shape[0] / 300.0
+    ratio = image.shape[0] / 500.0
     margin = 50
 
-    img_small = imutils.resize(image, height = 300)
+    img_small = imutils.resize(image, height = 500)
 
     img_hsv = cv2.cvtColor(img_small, cv2.COLOR_BGR2HSV)
 
-    mask = 255 - cv2.inRange(cv2.medianBlur(img_hsv.copy(), 5), (55,60,30), (75,255,230))
+    mask = 255 - cv2.inRange(cv2.medianBlur(img_hsv.copy(), 21), (50,130,40), (80,255,230))
 
-    cnts = cv2.findContours(mask.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
     screenCnt = None
 
     for c in cnts:
         peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.015 * peri, True)
+        approx = cv2.approxPolyDP(c, 0.085 * peri, True)
         if len(approx) == 4:
             screenCnt = approx
             break
 
-    a = cv2.drawContours(img_small.copy(), [screenCnt], -1, (0, 0, 255), 5)
-
     pts = screenCnt.reshape(4, 2)
     rect = np.zeros((4, 2), dtype = "float32")
-
 
     s = pts.sum(axis = 1)
     rect[0] = pts[np.argmin(s)]
@@ -66,7 +63,7 @@ def process_image(image):
 
     return crop_img
 
-directory = "/tmp/"
+directory = "/run/media/florian/C9E9-27B2/DCIM/102MSDCF/"
 output_directory = os.path.join(directory, "warped/")
 
 try:
@@ -74,7 +71,10 @@ try:
 except OSError:
     print ("Creation of the directory %s failed" % output_directory)
 
+
 cv2.imshow("Image", np.zeros((50,50)))
+
+print(f"So many items {len(os.listdir(directory))}!")
 
 # all files in folder
 for file in os.listdir(directory):
@@ -90,6 +90,5 @@ for file in os.listdir(directory):
         img_warp_small = imutils.resize(warped_image.copy(), height = 500)
         cv2.imshow("Image", img_warp_small)
         cv2.waitKey(1)
-        time.sleep(1)
 
 cv2.destroyAllWindows()
