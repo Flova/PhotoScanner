@@ -12,7 +12,7 @@ def process_image(image):
 
     img_hsv = cv2.cvtColor(img_small, cv2.COLOR_BGR2HSV)
 
-    mask = 255 - cv2.inRange(cv2.medianBlur(img_hsv.copy(), 21), (50,130,40), (80,255,230))
+    mask = 255 - cv2.inRange(cv2.medianBlur(img_hsv.copy(), 21), (50,130,40), (80,255,250))
 
     cnts = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -63,14 +63,27 @@ def process_image(image):
 
     return crop_img
 
-directory = "/run/media/florian/C9E9-27B2/DCIM/102MSDCF/"
+
+def fix_aspect_ratio(image, wanted_width, wanted_height):
+
+
+    width = image.shape[1]
+    height = int(image.shape[1] * (wanted_height / wanted_width))
+    dim = (width, height)
+    # resize image
+    fixed = cv2.resize(image, dim)
+    return fixed
+
+directory = "/run/media/florian/C9E9-27B2/DCIM/115MSDCF/"
+size = (13, 8.7)
+
+
 output_directory = os.path.join(directory, "warped/")
 
 try:
     os.mkdir(output_directory)
 except OSError:
     print ("Creation of the directory %s failed" % output_directory)
-
 
 cv2.imshow("Image", np.zeros((50,50)))
 
@@ -84,6 +97,9 @@ for file in os.listdir(directory):
         image = cv2.imread(os.path.join(directory, file))
         # Exec
         warped_image = process_image(image)
+        # Fix aspect
+        warped_image = fix_aspect_ratio(warped_image, *size)
+
         # Write
         cv2.imwrite(os.path.join(output_directory, file), warped_image)
         # Viewer
