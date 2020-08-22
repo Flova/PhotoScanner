@@ -1,2 +1,2 @@
 # PhotoScanner
-A quick tool to scan analog photos using a greensceen and a dslr.
+A simple tool to digitalize printed photos using a greenscreen and a DSLR.

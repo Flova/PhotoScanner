@@ -4,6 +4,7 @@ import cv2
 import imutils
 import numpy as np
 
+
 def process_image(image):
     ratio = image.shape[0] / 500.0
     margin = 50
@@ -74,9 +75,9 @@ def fix_aspect_ratio(image, wanted_width, wanted_height):
     fixed = cv2.resize(image, dim)
     return fixed
 
-directory = "/run/media/florian/C9E9-27B2/DCIM/115MSDCF/"
-size = (13, 8.7)
-
+directory = "/run/media/florian/C9E9-27B2/DCIM/136MSDCF/"
+size = (13, 8.8)
+#size = (14.9, 10.1)
 
 output_directory = os.path.join(directory, "warped/")
 
@@ -97,14 +98,18 @@ for file in os.listdir(directory):
         image = cv2.imread(os.path.join(directory, file))
         # Exec
         warped_image = process_image(image)
-        # Fix aspect
-        warped_image = fix_aspect_ratio(warped_image, *size)
 
-        # Write
-        cv2.imwrite(os.path.join(output_directory, file), warped_image)
-        # Viewer
-        img_warp_small = imutils.resize(warped_image.copy(), height = 500)
-        cv2.imshow("Image", img_warp_small)
-        cv2.waitKey(1)
+        try:
+            # Fix aspect
+            warped_image = fix_aspect_ratio(warped_image, *size)
+
+            # Write
+            cv2.imwrite(os.path.join(output_directory, file), warped_image)
+            # Viewer
+            img_warp_small = imutils.resize(warped_image.copy(), height = 500)
+            cv2.imshow("Image", img_warp_small)
+            cv2.waitKey(1)
+        except:
+            print(f"error at image {file}")
 
 cv2.destroyAllWindows()

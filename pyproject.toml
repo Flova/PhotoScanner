@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "PhotoScanner"
+version = "0.1.0"
+description = "A simple tool to digitalize printed photos using a greenscreen and a DSLR."
+authors = ["Florian Vahl <florian@flova.de>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+opencv-python = "^4.4.0"
+numpy = "^1.19.1"
+imutils = "^0.5.3"
+argparse = "^1.4.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
