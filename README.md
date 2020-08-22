@@ -15,6 +15,6 @@ To start the PhotoScanner run `poetry run ./app -h`.
 # Setup
 The setup should roughly look like this:
 
-![Photo Setup](setup.jpg)
+![Photo Setup](https://github.com/Flova/PhotoScanner/raw/master/setup.jpg)
 
 A even lighting without reflections on the glossy surface of the photo results in the best quality. The printed image should be captured from the top on a green background.
