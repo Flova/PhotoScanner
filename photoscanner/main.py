@@ -9,9 +9,8 @@ import numpy as np
 import argparse
 from pathlib import Path
 
-params: typing.Dict[str, object] = dict()
 
-def process_image(image: np.ndarray) -> np.ndarray:
+def process_image(image: np.ndarray, params: typing.Dict[str, object] ) -> np.ndarray:
     ratio = image.shape[0] / 500.0
     margin = 50
 
@@ -21,9 +20,10 @@ def process_image(image: np.ndarray) -> np.ndarray:
 
     mask = 255 - cv2.inRange(
         cv2.medianBlur(
-            img_hsv.copy(), params['median']),
-            tuple([x for x in params["min_hsv"].split(",")]),
-            tuple([x for x in params["max_hsv"].split(",")]))
+            img_hsv.copy(),
+            int(params['median'])),
+            tuple([int(x) for x in params["min_hsv"].split(",")]),
+            tuple([int(x) for x in params["max_hsv"].split(",")]))
 
     cnts = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -85,17 +85,21 @@ def fix_aspect_ratio(image: np.ndarray, wanted_width: float, wanted_height: floa
     return fixed
 
 
-def run_for_folder(input_directory: str, output_directory: str, size: typing.Tuple[float, float]) -> None:
+def run_for_folder(
+        input_directory: str,
+        output_directory: str,
+        size: typing.Tuple[float, float],
+        params: typing.Dict[str, object]) -> None:
     directory = input_directory
     #size = (14.9, 10.1)
 
-    print(input_directory, output_directory, size)
-    return
+    print(f"Input: {input_directory}\nOutput: {output_directory}\nPrint: {size}cm")
 
     try:
-        os.mkdir(output_directory)
+        os.makedirs(output_directory, exist_ok=True)
     except OSError:
         print ("Creation of the directory %s failed" % output_directory)
+        exit(1)
 
     cv2.imshow("Image", np.zeros((50,50)))
 
@@ -105,12 +109,11 @@ def run_for_folder(input_directory: str, output_directory: str, size: typing.Tup
     for file in os.listdir(directory):
         if file.endswith(".JPG") or file.endswith(".jpg") or file.endswith(".png"):
             print(f"Execute for file {file}!")
-            # Load
-            image = cv2.imread(os.path.join(directory, file))
-            # Exec
-            warped_image = process_image(image)
-
             try:
+                # Load
+                image = cv2.imread(os.path.join(directory, file))
+                # Exec
+                warped_image = process_image(image, params)
                 # Fix aspect
                 warped_image = fix_aspect_ratio(warped_image, *size)
                 # Write
@@ -147,7 +150,8 @@ def run():
     run_for_folder(
         str(Path(args.input_folder).resolve()),
         str(Path(args.output_folder).resolve()),
-        (args.width, args.height))
+        (args.width, args.height),
+        params)
 
 
 if __name__ == "__main__":
