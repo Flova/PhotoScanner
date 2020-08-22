@@ -2,7 +2,13 @@
 A simple tool to digitalize printed photos using a greenscreen and a DSLR.
 
 ## Install
-Install the poetry package manager and run the following command.
+There are two ways to install the tool.
+
+### Pip
+Run `pip install photoscanner --user` to download and install.
+
+### From source
+Install the poetry package manager and run the following commands.
 ```
 git clone git@github.com:Flova/PhotoScanner.git
 cd PhotoScanner
@@ -10,7 +16,9 @@ poetry install
 ```
 
 # Usage
-To start the PhotoScanner run `poetry run ./app -h`.
+To start the PhotoScanner run `photoscanner -h`.
+
+If you installed PhotoScanner from source run `poetry run photoscanner -h`.
 
 # Setup
 The setup should roughly look like this:
