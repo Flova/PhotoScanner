@@ -9,6 +9,15 @@ import numpy as np
 import argparse
 from pathlib import Path
 
+class COLORS:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def process_image(image: np.ndarray, params: typing.Dict[str, object] ) -> np.ndarray:
     ratio = image.shape[0] / 500.0
@@ -103,7 +112,7 @@ def run_for_folder(
 
     cv2.imshow("Image", np.zeros((50,50)))
 
-    print(f"Number of items {len(os.listdir(directory))}!")
+    print(f"{COLORS.OKGREEN}Number of items {len(os.listdir(directory))}{COLORS.ENDC}!")
 
     # all files in folder
     for file in os.listdir(directory):
@@ -123,7 +132,8 @@ def run_for_folder(
                 cv2.imshow("Image", img_warp_small)
                 cv2.waitKey(1)
             except:
-                print(f"error at image {file}")
+                print(f"{COLORS.WARNING}Error at image {file}{COLORS.ENDC}")
+    print(f"{COLORS.OKGREEN}Finished!{COLORS.ENDC}")
     cv2.destroyAllWindows()
 
 
