@@ -147,8 +147,8 @@ def run():
     parser.add_argument('-he', '--height', type=float, default=8.8, help='Height of the input images in cm (both hight and width are required).')
     parser.add_argument('-w', '--width', type=float, default=13, help='Width of the input images in cm (both hight and width are required).')
     parser.add_argument('-m', '--median', type=int, default=21, help='Median filter kernel size.')
-    parser.add_argument('--max-hsv', type=str, default="50,130,40", help='Max HSV greenscreen thresh')
-    parser.add_argument('--min-hsv', type=str, default="80,255,250", help='Min HSV greenscreen thresh')
+    parser.add_argument('--max-hsv', type=str, default="80,255,250", help='Max HSV greenscreen thresh')
+    parser.add_argument('--min-hsv', type=str, default="50,130,40", help='Min HSV greenscreen thresh')
 
     args = parser.parse_args()
 
