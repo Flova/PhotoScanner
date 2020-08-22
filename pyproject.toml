@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "PhotoScanner"
-version = "0.1.0"
+version = "0.1.1"
 description = "A simple tool to digitalize printed photos using a greenscreen and a DSLR."
 authors = ["Florian Vahl <florian@flova.de>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
