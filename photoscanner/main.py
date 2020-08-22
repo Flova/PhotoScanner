@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
 import os
+import typing
 import time
 import cv2
 import imutils
 import numpy as np
 import argparse
+from pathlib import Path
 
+params: typing.Dict[str, object] = dict()
 
-def process_image(image):
+def process_image(image: np.ndarray) -> np.ndarray:
     ratio = image.shape[0] / 500.0
     margin = 50
 
@@ -16,12 +19,16 @@ def process_image(image):
 
     img_hsv = cv2.cvtColor(img_small, cv2.COLOR_BGR2HSV)
 
-    mask = 255 - cv2.inRange(cv2.medianBlur(img_hsv.copy(), 21), (50,130,40), (80,255,250))
+    mask = 255 - cv2.inRange(
+        cv2.medianBlur(
+            img_hsv.copy(), params['median']),
+            tuple([x for x in params["min_hsv"].split(",")]),
+            tuple([x for x in params["max_hsv"].split(",")]))
 
     cnts = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
-    screenCnt = None
+    screenCnt: np.ndarray = None
 
     for c in cnts:
         peri = cv2.arcLength(c, True)
@@ -59,6 +66,7 @@ def process_image(image):
         [maxWidth - 1, 0],
         [maxWidth - 1, maxHeight - 1],
         [0, maxHeight - 1]], dtype = "float32")
+
     # calculate the perspective transform matrix and warp
     M = cv2.getPerspectiveTransform(rect, dst)
     warp = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
@@ -68,7 +76,7 @@ def process_image(image):
     return crop_img
 
 
-def fix_aspect_ratio(image, wanted_width, wanted_height):
+def fix_aspect_ratio(image: np.ndarray, wanted_width: float, wanted_height: float) -> np.ndarray:
     width = image.shape[1]
     height = int(image.shape[1] * (wanted_height / wanted_width))
     dim = (width, height)
@@ -77,12 +85,12 @@ def fix_aspect_ratio(image, wanted_width, wanted_height):
     return fixed
 
 
-def run_for_folder(input_directory, output_directory, size):
-    directory = "/run/media/florian/C9E9-27B2/DCIM/136MSDCF/"
-    size = (13, 8.8)
+def run_for_folder(input_directory: str, output_directory: str, size: typing.Tuple[float, float]) -> None:
+    directory = input_directory
     #size = (14.9, 10.1)
 
-    output_directory = os.path.join(directory, "warped/")
+    print(input_directory, output_directory, size)
+    return
 
     try:
         os.mkdir(output_directory)
@@ -117,22 +125,30 @@ def run_for_folder(input_directory, output_directory, size):
 
 
 def run():
-    parser = argparse.ArgumentParser(description='A simple tool to digitalize printed photos using a greenscreen and a DSLR.')
+    parser = argparse.ArgumentParser(
+        description='A simple tool to digitalize printed photos using a greenscreen and a DSLR.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--input-folder', type=str, help='Input folder with the images captured by the DSLR.')
-    parser.add_argument('--output-folder', type=str, help='Folder in which the croped images are saved.')
-    parser.add_argument('--height', type=int, help='Height of the input images in cm (both hight and width are required).')
-    parser.add_argument('--width', type=int, help='Width of the input images in cm (both hight and width are required).')
+    parser.add_argument('-i', '--input-folder', default=".", type=str, help='Input folder with the images captured by the DSLR.')
+    parser.add_argument('-o', '--output-folder', default=None, type=str, help='Folder in which the croped images are saved.')
+    parser.add_argument('-he', '--height', type=float, default=8.8, help='Height of the input images in cm (both hight and width are required).')
+    parser.add_argument('-w', '--width', type=float, default=13, help='Width of the input images in cm (both hight and width are required).')
+    parser.add_argument('-m', '--median', type=int, default=21, help='Median filter kernel size.')
+    parser.add_argument('--max-hsv', type=str, default="50,130,40", help='Max HSV greenscreen thresh')
+    parser.add_argument('--min-hsv', type=str, default="80,255,250", help='Min HSV greenscreen thresh')
 
     args = parser.parse_args()
 
-    if args.height and args.width and args.input_folder and args.input_folder:
-        run_for_folder(
-            args.input_folder,
-            args.input_folder,
-            (args.width, args.height))
-    else:
-        print("Please provide all arguments. See -h for the descriptions.")
+    params = vars(args)
+
+    if args.output_folder is None:
+        args.output_folder = os.path.join(str(Path(args.input_folder).resolve()), "converted")
+
+    run_for_folder(
+        str(Path(args.input_folder).resolve()),
+        str(Path(args.output_folder).resolve()),
+        (args.width, args.height))
+
 
 if __name__ == "__main__":
     run()
